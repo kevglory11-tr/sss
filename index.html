@@ -485,8 +485,9 @@ footer em{color:var(--gold);font-style:normal;opacity:.5}
   <em>✦</em>&nbsp;&nbsp;Metin2Board &nbsp;·&nbsp; Tüm hakları saklıdır&nbsp;&nbsp;<em>✦</em>
 </footer>
 
-<audio id="bgMusic" loop>
+<audio id="bgMusic" loop preload="none">
   <source src="background.mp3" type="audio/mpeg">
+  <source src="music/background.mp3" type="audio/mpeg">
 </audio>
 <button id="musicBtn" title="Müzik">🎵</button>
 
@@ -560,11 +561,36 @@ document.querySelectorAll('.acc-item').forEach((el,i)=>{el.style.transitionDelay
 
 /* ── MUSIC ── */
 const music=document.getElementById('bgMusic'),musicBtn=document.getElementById('musicBtn');
-musicBtn.addEventListener('click',()=>{
-  if(music.paused){music.volume=0;music.play().catch(()=>{});fade(0,.7);musicBtn.classList.add('on');musicBtn.textContent='⏸';}
-  else{fade(music.volume,0,()=>music.pause());musicBtn.classList.remove('on');musicBtn.textContent='🎵';}
+musicBtn.addEventListener('click', () => {
+  if (music.paused) {
+    music.volume = 0;
+    const p = music.play();
+    if (p !== undefined) {
+      p.then(() => {
+        fade(0, 0.7);
+        musicBtn.classList.add('on');
+        musicBtn.textContent = '⏸';
+      }).catch(e => console.warn('Müzik oynatılamadı:', e));
+    }
+  } else {
+    fade(music.volume, 0, () => music.pause());
+    musicBtn.classList.remove('on');
+    musicBtn.textContent = '🎵';
+  }
 });
-function fade(from,to,cb){let v=from;const step=(to-from)/20;const t=setInterval(()=>{v+=step;music.volume=Math.max(0,Math.min(1,v));if((step>0&&v>=to)||(step<0&&v<=to)){music.volume=Math.max(0,Math.min(1,to));clearInterval(t);if(cb)cb();}},55);}
+function fade(from, to, cb) {
+  let v = from;
+  const step = (to - from) / 20;
+  const t = setInterval(() => {
+    v += step;
+    music.volume = Math.max(0, Math.min(1, v));
+    if ((step > 0 && v >= to) || (step < 0 && v <= to)) {
+      music.volume = Math.max(0, Math.min(1, to));
+      clearInterval(t);
+      if (cb) cb();
+    }
+  }, 55);
+}
 </script>
 </body>
 </html>
