@@ -558,17 +558,42 @@ document.querySelectorAll('.acc-item').forEach((el,i)=>{el.style.transitionDelay
 
 /* ── MUSIC ── */
 const music=document.getElementById('bgMusic'),musicBtn=document.getElementById('musicBtn');
+
+// Otomatik başlat — ilk kullanıcı etkileşiminde
+function startMusic() {
+  if (!music.paused) return;
+  music.volume = 0;
+  music.play().then(() => {
+    fade(0, 0.65);
+    musicBtn.classList.add('on');
+    musicBtn.textContent = '⏸';
+  }).catch(() => {
+    const unlock = () => {
+      music.volume = 0;
+      music.play().then(() => {
+        fade(0, 0.65);
+        musicBtn.classList.add('on');
+        musicBtn.textContent = '⏸';
+      }).catch(()=>{});
+      document.removeEventListener('click', unlock);
+      document.removeEventListener('touchstart', unlock);
+      document.removeEventListener('keydown', unlock);
+    };
+    document.addEventListener('click', unlock);
+    document.addEventListener('touchstart', unlock);
+    document.addEventListener('keydown', unlock);
+  });
+}
+startMusic();
+
 musicBtn.addEventListener('click', () => {
   if (music.paused) {
     music.volume = 0;
-    const p = music.play();
-    if (p !== undefined) {
-      p.then(() => {
-        fade(0, 0.7);
-        musicBtn.classList.add('on');
-        musicBtn.textContent = '⏸';
-      }).catch(e => console.warn('Müzik oynatılamadı:', e));
-    }
+    music.play().then(() => {
+      fade(0, 0.65);
+      musicBtn.classList.add('on');
+      musicBtn.textContent = '⏸';
+    }).catch(()=>{});
   } else {
     fade(music.volume, 0, () => music.pause());
     musicBtn.classList.remove('on');
